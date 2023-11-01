@@ -1,4 +1,4 @@
-const fs = require("fs");
+import fs from "fs";
 
 class ProductManager {
   id = 0;
@@ -52,16 +52,16 @@ class ProductManager {
   // Obtener todos los Productos
   getProducts() {
     const dataDB = this.loadData();
-    return console.log(dataDB);
+    return dataDB;
   }
   // Obtener Producto por ID
   getProductByID(id) {
     const dataDB = this.loadData();
     let existProduct = dataDB.find((elem) => elem.id === id);
     if (existProduct) {
-      return console.log(existProduct);
+      return existProduct;
     } else {
-      return console.log(`Product ID ${id} not found!`);
+      return `Product ID ${id} not found!`;
     }
   }
   // Actualizar Producto
@@ -90,40 +90,4 @@ class ProductManager {
   }
 }
 
-const productA = {
-  title: "Producto Prueba",
-  description: "Este es un producto prueba",
-  price: 200,
-  thumbnail: "Sin imagen",
-  code: "abc123",
-  stock: 25,
-};
-const productB = {
-  title: "Producto Prueba 2",
-  description: "Este es un producto prueba",
-  price: 300,
-  thumbnail: "Sin imagen",
-  code: "abc987",
-  stock: 35,
-};
-
-const newData = {
-  title: "Nuevo Nombre Producto Prueba",
-  price: 500,
-  stock: 50,
-};
-
-// Proceso de Testing
-
-// const appManager = new ProductManager("./productsDB.json");
-// appManager.getProducts();
-// appManager.addProduct(productA);
-// appManager.getProducts();
-// appManager.addProduct(productB);
-// appManager.getProducts();
-// appManager.getProductByID(2)
-// appManager.getProductByID(9)
-// appManager.updateProduct(2,newData)
-// appManager.updateProduct(9, newData)
-// appManager.deleteProduct(9)
-// appManager.deleteProduct(3)
+export default ProductManager;
