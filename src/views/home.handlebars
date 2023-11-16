@@ -1,0 +1,32 @@
+<div>
+  <h1 class="text-center text-bg-info">Lista de Productos</h1>
+  <div class="container-xl text-center">
+    <div class="row">
+      {{#each dataDB}}
+        <div class="col-md-6">
+          <div class="card mb-3" style="max-width: 540px;">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img
+                  src="{{this.thumbnail}}"
+                  class="img-fluid rounded-start"
+                  alt="..."
+                />
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">{{this.title}}</h5>
+                  <p class="card-text">{{this.description}}</p>
+                  <p class="card-text"><small
+                      class="text-body-secondary fw-bold"
+                    >${{this.price}}</small></p>
+                  <a href="#" class="btn btn-primary">Ver Mas</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  </div>
+</div>

@@ -6,47 +6,67 @@ class ProductManager {
     this.path = path;
   }
   // Cargar Archivo
-  loadData() {
+  async loadData() {
     try {
-      return JSON.parse(fs.readFileSync(this.path, "utf-8"));
-    } catch (error) {
+      if (fs.existsSync(this.path)) {
+        const dataDB = await fs.promises.readFile(this.path, "utf-8");
+        return JSON.parse(dataDB);
+      }
+      await fs.promises.writeFile(this.path, JSON.stringify([]));
       return [];
+    } catch (error) {
+      throw new Error("Couldn't lead Products DB");
     }
   }
   // Guardar en Archivo
-  saveData(data) {
+  async saveData(data) {
     try {
-      fs.writeFileSync(this.path, JSON.stringify(data));
+      await fs.promises.writeFile(this.path, JSON.stringify(data));
     } catch (error) {
       return console.log(`Couldn't save data`);
     }
   }
   // Agregar Producto
-  addProduct(newProduct) {
-    const dataDB = this.loadData();
-    let checkCode = dataDB.some((elem) => elem.code === newProduct.code);
-    if (checkCode) {
-      return console.log(`Code already exist`);
-    } else if (
-      !newProduct.title ||
-      !newProduct.description ||
-      !newProduct.price ||
-      !newProduct.thumbnail ||
-      !newProduct.code ||
-      !newProduct.stock
-    ) {
-      return console.log(`Missing data`);
-    } else {
-      if (dataDB.length === 0) {
-        this.id = 1;
+  async addProduct(newProduct) {
+    try {
+      const dataDB = await this.loadData();
+      let checkCode = dataDB.some((elem) => elem.code === newProduct.code);
+      if (checkCode) {
+        throw new Error(`Code already exist`);
+      } else if (
+        !newProduct.title ||
+        !newProduct.description ||
+        !newProduct.price ||
+        !newProduct.code ||
+        !newProduct.stock
+      ) {
+        throw new Error(`Missing data`);
       } else {
-        this.id = dataDB[dataDB.length - 1].id + 1;
+        if (dataDB.length === 0) {
+          this.id = 1;
+        } else {
+          this.id = dataDB[dataDB.length - 1].id + 1;
+        }
+        let productUpdated = newProduct.thumbnail
+          ? {
+              id: this.id,
+              ...newProduct,
+              thumbnail: [newProduct.thumbnail],
+              status: true,
+            }
+          : {
+              id: this.id,
+              ...newProduct,
+              thumbnail: [],
+              status: true,
+            };
+        this.id++;
+        dataDB.push(productUpdated);
+        await this.saveData(dataDB);
+        return productUpdated;
       }
-      let productUpdated = { id: this.id, ...newProduct };
-      this.id++;
-      dataDB.push(productUpdated);
-      this.saveData(dataDB);
-      return console.log(`Product added successfully`);
+    } catch (error) {
+      throw new Error(error.message);
     }
   }
   // Obtener todos los Productos
@@ -71,21 +91,24 @@ class ProductManager {
     if (index !== -1) {
       dataDB[index] = { ...dataDB[index], ...newInfo };
       this.saveData(dataDB);
-      return console.log(`Product updated successfully`);
+      return dataDB[index];
     } else {
-      return console.log(`Product ID ${id} not found!`);
+      return `Product ID ${id} not found!`;
     }
   }
   // Eliminar Producto
   deleteProduct(id) {
-    const dataDB = this.loadData();
-    let index = dataDB.findIndex((elem) => elem.id === id);
-    if (index !== -1) {
-      dataDB.splice(index, 1);
-      this.saveData(dataDB);
-      return console.log(`Product deleted successfully`);
-    } else {
-      return console.log(`Product ID ${id} not found!`);
+    try {
+      const dataDB = this.loadData();
+      let index = dataDB.findIndex((elem) => elem.id === id);
+      if (index !== -1) {
+        const delProduct = dataDB[index];
+        dataDB.splice(index, 1);
+        this.saveData(dataDB);
+        return delProduct;
+      }
+    } catch (error) {
+      throw new Error(error.message);
     }
   }
 }
