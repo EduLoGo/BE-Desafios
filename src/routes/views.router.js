@@ -1,33 +1,33 @@
 import { Router } from "express";
 import { socketServer } from "../app.js";
-import ProductManager from "../productManager.js";
+import { MongoProducts } from "../dao/db/mongoProducts.js";
 
-const productManager = new ProductManager("./src/productsDB.json");
+const productManager = new MongoProducts();
 
 const viewsRouters = Router();
 
 viewsRouters.get("/", async (req, res) => {
   try {
-    const dataDB = await productManager.getProducts();
+    const dataDB = await productManager.productAll();
     res.render("home", { dataDB });
   } catch (error) {
-    throw new Error(error);
+    throw new Error(error.message);
   }
 });
 
 viewsRouters.get("/realtimeproducts", async (req, res) => {
   try {
-    const dataDB = await productManager.getProducts();
+    const dataDB = await productManager.productAll();
     res.render("realTimeProducts", { dataDB });
   } catch (error) {
-    throw new Error(error);
+    throw new Error(error.message);
   }
 });
 
 viewsRouters.post("/realtimeproducts", async (req, res) => {
   try {
     const newProduct = req.body;
-    const productAdded = await productManager.addProduct(newProduct);
+    const productAdded = await productManager.productAdd(newProduct);
     socketServer.emit("products", productAdded);
   } catch (error) {
     throw new Error(error.message);

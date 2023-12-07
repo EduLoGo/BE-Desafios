@@ -1,26 +1,25 @@
 import { Router } from "express";
-import ProductManager from "../productManager.js";
+import { MongoProducts } from "../dao/db/mongoProducts.js";
 
-const productManager = new ProductManager("./src/productsDB.json");
+const productManager = new MongoProducts();
 
 const productsRouter = Router();
 
 productsRouter.get("/", async (req, res) => {
   try {
-    const limit = req.query.limit;
-    const allProducts = await productManager.getProducts();
+    const { limit } = req.query;
+    const resProducts = await productManager.productAll(limit);
     if (!limit) {
       res.status(200).json({
         status: `Success`,
         message: "All products",
-        payload: allProducts,
+        payload: resProducts,
       });
     } else {
-      const productsLimit = allProducts.slice(0, limit);
       res.status(200).json({
         status: `Success`,
         message: `Showing ${limit} products`,
-        payload: productsLimit,
+        payload: resProducts,
       });
     }
   } catch (error) {
@@ -34,25 +33,26 @@ productsRouter.get("/", async (req, res) => {
 
 productsRouter.get("/:pid", async (req, res) => {
   try {
-    const id = parseInt(req.params.pid);
-    const productFound = await productManager.getProductByID(id);
+    const { pid } = req.params;
+    const productFound = await productManager.productById(pid);
     if (!productFound) {
       res.status(404).json({
+        // NO arroja error cuando el ID no existe
         status: `Error`,
-        message: `Product ID ${id} not found!`,
+        message: `Product ID ${pid} not found:` + error.message,
         payload: {},
       });
     } else {
       res.status(200).json({
         status: `Success`,
-        message: `Product ID ${id} found!`,
+        message: `Product ID ${pid} found!`,
         payload: productFound,
       });
     }
-  } catch {
+  } catch (error) {
     res.status(400).json({
       status: `Error`,
-      message: "An unexpected error has occurred! Please, try again later.",
+      message: `An error has occurred: ` + error.message,
       payload: {},
     });
   }
@@ -61,7 +61,7 @@ productsRouter.get("/:pid", async (req, res) => {
 productsRouter.post("/", async (req, res) => {
   try {
     const newProduct = req.body;
-    const addedProduct = await productManager.addProduct(newProduct);
+    const addedProduct = await productManager.productAdd(newProduct);
     res.status(201).json({
       status: `Success`,
       message: `Product added successfully`,
@@ -70,7 +70,7 @@ productsRouter.post("/", async (req, res) => {
   } catch (error) {
     res.status(400).json({
       status: `Error`,
-      message: error.message,
+      message: `An error has occurred: ` + error.message,
       payload: {},
     });
   }
@@ -78,26 +78,26 @@ productsRouter.post("/", async (req, res) => {
 
 productsRouter.put("/:pid", async (req, res) => {
   try {
-    const id = parseInt(req.params.pid);
+    const { pid } = req.params;
     const newInfo = req.body;
-    const updatedProduct = await productManager.updateProduct(id, newInfo);
+    const updatedProduct = await productManager.productUpdate(pid, newInfo);
     if (!updatedProduct) {
       res.status(404).json({
         status: `Error`,
-        message: `Product ID ${id} not found!`,
+        message: `Product ID ${pid} not found!`,
         payload: {},
       });
     } else {
       res.status(200).json({
         status: `Success`,
-        message: `Product ID ${id} updated successfully`,
+        message: `Product ID ${pid} updated successfully`,
         payload: updatedProduct,
       });
     }
   } catch (error) {
     res.status(400).json({
       status: `Error`,
-      message: "An unexpected error has occurred! Please, try again later.",
+      message: `An error has occurred: ` + error.message,
       payload: {},
     });
   }
@@ -105,25 +105,25 @@ productsRouter.put("/:pid", async (req, res) => {
 
 productsRouter.delete("/:pid", async (req, res) => {
   try {
-    const id = parseInt(req.params.pid);
-    const deletedProduct = await productManager.deleteProduct(id);
+    const { pid } = req.params;
+    const deletedProduct = await productManager.productDelete(pid);
     if (!deletedProduct) {
       res.status(404).json({
         status: `Error`,
-        message: `Product ID ${id} not found!`,
+        message: `Product ID ${pid} not found!`,
         payload: {},
       });
     } else {
       res.status(200).json({
         status: `Success`,
-        message: `Product ID ${id} deleted successfully`,
+        message: `Product ID ${pid} deleted successfully`,
         payload: deletedProduct,
       });
     }
-  } catch {
+  } catch (error) {
     res.status(400).json({
       status: `Error`,
-      message: "An unexpected error has occurred! Please, try again later.",
+      message: `An error has occurred: ` + error.message,
       payload: {},
     });
   }
