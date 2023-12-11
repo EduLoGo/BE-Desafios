@@ -42,4 +42,3 @@ socket.on("products", (data) => {
   mainDiv.appendChild(newCard);
   document.getElementById("form").reset();
 });
-

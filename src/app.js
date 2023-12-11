@@ -30,27 +30,23 @@ app.engine("handlebars", handlebars.engine());
 app.set("view engine", "handlebars");
 app.set("views", __dirname + "/views");
 
+//Rutas
 app.use("/api/products", productsRouter);
 app.use("/api/carts/", cartsRouter);
 app.use("/chatroom", chatRouters);
 app.use("/", viewsRouters);
 
-socketServer.on("connection", (socket) => {
+//Socket
+socketServer.on("connection", async (socket) => {
   console.log(`Nuevo cliente conectado: ${socket.id}`);
-  const dbMsg = messagesManager.messageAll();
-  socket.emit("MsgHistory", dbMsg);
-  try {
-    socket.on("MsgNew", async data =>  {
-      messagesManager.messageSave(data);
-      const dbMsg = await messagesManager.messageAll();
-      socketServer.emit("MsgHistory", dbMsg);
-    })
-  } catch (error) {
-    throw new Error(error.message);
-  }
-  
+  socketServer.emit("MsgHistory", await messagesManager.messageAll());
+  socket.on("MsgNew", async (data) => {
+    await messagesManager.messageSave(data);
+    socketServer.emit("MsgHistory", await messagesManager.messageAll());
+  })  
 });
 
+//Error
 app.get("/*", (req, res) => {
   res.status(404).json({
     status: "Error 404",
@@ -59,6 +55,7 @@ app.get("/*", (req, res) => {
   });
 });
 
+// Conexión a la base de datos
 try {
   await mongoose.connect(
     "mongodb+srv://edulogo:CoderCoder@coderproject.wuypshy.mongodb.net/?retryWrites=true&w=majority",

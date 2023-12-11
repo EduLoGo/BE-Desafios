@@ -4,6 +4,14 @@ export class MongoManager {
   constructor(collectionName, schema) {
     this.db = mongoose.model(collectionName, schema);
   }
+  // Validación de ID
+  validateId(id) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error("ID not valid");
+    }
+  }
+
+  // Manejo de Products
   async productAll(limit) {
     try {
       const dbData = await this.db.find({}).limit(limit).lean();
@@ -13,11 +21,9 @@ export class MongoManager {
     }
   }
   async productById(id) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error("ID not valid");
-    }
+    this.validateId(id);
     try {
-      const productId = await this.db.findOne({ status: true, _id: id }).lean();
+      const productId = await this.db.find({ status: true, _id: id });
       return productId;
     } catch (error) {
       throw new Error(error.message);
@@ -36,9 +42,7 @@ export class MongoManager {
     }
   }
   async productUpdate(id, product) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error("ID not valid");
-    }
+    this.validateId(id);
     try {
       const productId = await this.db.findByIdAndUpdate(id, product, {
         new: true,
@@ -49,18 +53,16 @@ export class MongoManager {
     }
   }
   async productDelete(id) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error("ID not valid");
-    }
+    this.validateId(id);
     try {
-      const productId = await this.db.findByIdAndDelete(id, {
-        new: true,
-      });
+      const productId = await this.db.findByIdAndDelete(id);
       return productId;
     } catch (error) {
       throw new Error(error.message);
     }
   }
+
+  // Manejo de Carts
 
   async createCart() {
     try {
@@ -70,6 +72,7 @@ export class MongoManager {
     }
   }
   async cartById(id) {
+    this.validateId(id);
     try {
       const cartId = this.db.findById(id);
       return cartId;
@@ -77,16 +80,28 @@ export class MongoManager {
       throw new Error(error.message);
     }
   }
+  async cartUpdate(id, cart) {
+    try {
+      const cartId = await this.db.findByIdAndUpdate(id, cart, {
+        new: true,
+      });
+      return cartId;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+  
+  /// Mensajes
 
   async messageAll() {
     try {
-      const dbMsg = await this.db.find({}).lean();
+      const dbMsg = await this.db.find({}).sort({ _id: -1 }).lean();
       return dbMsg;
     } catch (error) {
       throw new Error(error.message);
     }
   }
-  async messageSave (message) {
+  async messageSave(message) {
     try {
       await this.db.create(message);
     } catch (error) {

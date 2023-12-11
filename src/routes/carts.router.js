@@ -10,7 +10,6 @@ export const cartsRouter = Router();
 
 cartsRouter.post("/", async (req, res) => {
   try {
-    const products = [];
     const newCart = await cartsManager.createCart();
     res.status(201).json({
       status: "Success",
@@ -60,46 +59,44 @@ cartsRouter.get("/:cid", async (req, res) => {
   }
 });
 
-/* cartsRouter.post("/:cid/product/:pid", async (req, res) => {
+cartsRouter.post("/:cid/product/:pid", async (req, res) => {
+  const { cid, pid } = req.params;
   try {
-    const cartId = parseInt(req.params.cid);
-    const productId = parseInt(req.params.pid);
-    const productsDB = await productManager.loadData();
-    const cart = await cartManager.getCartById(cartId);
+    const cart = await cartsManager.cartById(cid);
     if (!cart) {
       res.status(404).json({
         status: "Error",
-        message: `Cart ID ${cartId} not found`,
+        message: `Cart ID ${cid} not found`,
         payload: {},
       });
     } else {
-      const productExist = productsDB.some((elem) => elem.id === productId);
-      if (productExist) {
+      const productExist = await productsManager.productById(pid);
+      if (productExist.length !== 0) {
         const productIndex = cart.products.findIndex(
-          (elem) => elem.idProduct === productId
+          (product) => product._id.toString() === pid
         );
         if (productIndex === -1) {
-          const newProduct = { idProduct: productId, quantity: 1 };
+          const newProduct = { _id: productExist[0]._id, quantity: 1 };
           cart.products.push(newProduct);
-          await cartManager.updateCart(cartId, cart);
+          const updateCart = await cartsManager.cartUpdate(cid, cart);
           res.status(201).json({
             status: "Success",
             message: "Product added successfully",
-            payload: cart,
+            payload: updateCart,
           });
         } else {
           cart.products[productIndex].quantity += 1;
-          await cartManager.updateCart(cartId, cart);
+          const funciona = await cartsManager.cartUpdate(cid, cart);
           res.status(202).json({
             status: "Success",
             message: "Existing product, quantity was increased",
-            payload: cart,
+            payload: funciona,
           });
         }
       } else {
         res.status(404).json({
           status: "Error",
-          message: `Product ID ${productId} not found`,
+          message: `Product ID ${pid} not found`,
           payload: {},
         });
       }
@@ -107,10 +104,10 @@ cartsRouter.get("/:cid", async (req, res) => {
   } catch (error) {
     res.status(500).json({
       status: "Error",
-      message: `An unexpected error has occurred`,
+      message: error.message,
       payload: {},
     });
   }
-}); */
+});
 
 export default cartsRouter;
