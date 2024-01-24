@@ -16,8 +16,12 @@
       <h2>E-Commerce</h2>
       <ul>
         <li><a class="btn btn-info" href="/">Inicio</a></li>
+        {{#if user}}
         <li><a class="btn btn-info" href="/realtimeproducts">RealTimeProducts</a></li>
+        <li><a class="btn btn-info" href="/products">Products</a></li>
         <li><a class="btn btn-info" href="/chatroom">ChatRoom</a></li>
+          <li><a class="btn btn-info" href="/user/logout">Cerrar Sesión</a></li>
+        {{/if}}
       </ul>
     </nav>
     {{{body}}}

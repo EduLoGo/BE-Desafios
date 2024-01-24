@@ -1,32 +1,27 @@
-<div>
-  <h1 class="text-center p-2 text-bg-info">Lista de Productos</h1>
-  <div class="container-xl text-center">
-    <div class="row">
-      {{#each dataDB}}
-        <div class="col-md-6">
-          <div class="card mb-3" style="max-width: 540px;">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <img
-                  src="{{this.thumbnail}}"
-                  class="img-fluid rounded-start"
-                  alt="..."
-                />
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title">{{this.title}}</h5>
-                  <p class="card-text">{{this.description}}</p>
-                  <p class="card-text"><small
-                      class="text-body-secondary fw-bold"
-                    >${{this.price}}</small></p>
-                  <a href="#" class="btn btn-primary">Ver Mas</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      {{/each}}
+<h1 class="text-center p-2 text-bg-info">Bienvenido</h1>
+<div class="container col-3">
+  <form class="row justify-content-center" id="formLogin" action="/user/login" method="post">
+      <div class="mb-3">
+        <label for="InputEmail1" class="form-label">Usuario:</label>
+        <input type="email" class="form-control" placeholder="Escriba su correo" id="InputEmail1" aria-describedby="emailHelp" name="email"/>
+      </div>
+      <div class="mb-3">
+        <label for="InputPassword" class="form-label">Password:</label>
+        <input type="password" class="form-control" placeholder="Escriba su password" id="InputPassword" name="password"/>
+      </div>
+    <div class="flex-row d-flex justify-content-around ">
+      <a type="button" class="btn btn-secondary" href="/user/register">Regístrate</a>
+      <button type="submit" class="btn btn-primary">Ingresar</button>
     </div>
-  </div>
+    {{#if error}}
+      <div class="alert alert-danger m-3" role="alert">
+        {{error}}
+      </div>
+    {{/if}}
+    {{#if success}}
+      <div class="alert alert-success m-3" role="alert">
+        {{success}}
+      </div>
+    {{/if}}
+  </form>
 </div>

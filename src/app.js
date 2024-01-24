@@ -6,7 +6,9 @@ import mongoose from "mongoose";
 import productsRouter from "./routes/products.router.js";
 import cartsRouter from "./routes/carts.router.js";
 import viewsRouters from "./routes/views.router.js";
-import chatRouters from "./routes/chat.router.js";
+import { sessionsRouter } from "./routes/sessions.router.js";
+import MongoStore from "connect-mongo";
+import session from "express-session";
 
 import { MongoMessages } from "./dao/db/mongoMessages.js";
 
@@ -25,15 +27,24 @@ export const socketServer = new Server(httpServer);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
+app.use(session({
+  store:MongoStore.create({
+    mongoUrl:"mongodb+srv://edulogo:CoderCoder@coderproject.wuypshy.mongodb.net/?retryWrites=true&w=majority",
+    mongoOptions: {dbName:"ecommerce"},
+    ttl:300,
+  }),
+  secret:"CoderSecret",
+  resave:true,
+  saveUninitialized: true,
+}))
 
 app.engine("handlebars", handlebars.engine());
 app.set("view engine", "handlebars");
 app.set("views", __dirname + "/views");
 
-//Rutas
-app.use("/api/products", productsRouter);
+app.use("/api/products/", productsRouter);
 app.use("/api/carts/", cartsRouter);
-app.use("/chatroom", chatRouters);
+app.use("/user/", sessionsRouter);
 app.use("/", viewsRouters);
 
 //Socket
@@ -43,10 +54,10 @@ socketServer.on("connection", async (socket) => {
   socket.on("MsgNew", async (data) => {
     await messagesManager.messageSave(data);
     socketServer.emit("MsgHistory", await messagesManager.messageAll());
-  })  
+  });
 });
 
-//Error
+//Error url
 app.get("/*", (req, res) => {
   res.status(404).json({
     status: "Error 404",
@@ -65,4 +76,3 @@ try {
 } catch (error) {
   console.log(`No se pudo conectar a la base de datos: ${error.message}`);
 }
-

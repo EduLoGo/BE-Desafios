@@ -1,0 +1,7 @@
+<h1 class="text-center p-2 text-bg-info">Datos del Usuario</h1>
+<hr>
+  {{#if userExist}}
+    <p>Nombre y Apellido: {{userExist.last_name}}, {{userExist.first_name}} </p>
+    <p>Edad: {{userExist.age}}</p>
+    <p>Email: {{userExist.email}}</p>
+  {{/if}}

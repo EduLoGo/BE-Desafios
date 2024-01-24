@@ -1,0 +1,32 @@
+<h1 class="text-center p-2 text-bg-info">Registro de Usuario</h1>
+<div class="container col-8">
+  <form class="row justify-content-center" action="/user/register" method="post">
+    <div class="input-group m-1">
+      <span class="input-group-text">Nombre</span>
+      <input type="text" class="form-control" name="first_name"/>
+    </div>
+    <div class="input-group m-1">
+      <span class="input-group-text">Apellido</span>
+      <input type="text" class="form-control" name="last_name"/>
+    </div>
+    <div class="input-group m-1">
+      <span class="input-group-text">Email</span>
+      <input type="email" class="form-control" name="email"/>
+      <span class="input-group-text">Edad</span>
+      <input type="number" class="form-control" name="age"/>
+    </div>
+    <div class="input-group m-1">
+      <span class="input-group-text">Password</span>
+      <input type="password" class="form-control" name="password"/>
+    </div>
+    <div class="flex-row d-flex justify-content-around ">
+      <a type="button" class="btn btn-secondary" href="/">Volver</a>
+      <button type="submit" class="btn btn-primary">Aceptar</button>
+    </div>
+  </form>
+  {{#if error}}
+    <div class="alert alert-danger m-3" role="alert">
+      {{error}}
+    </div>
+  {{/if}}
+</div>

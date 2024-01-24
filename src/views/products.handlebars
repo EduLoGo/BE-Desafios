@@ -1,0 +1,64 @@
+<div class="pt-3">
+  <div class="flex-row d-flex justify-content-around align-items-center ">
+    <h4><b>Bienvenido {{user.first_name}}</b></h4>
+    <h6><b>Rol:</b> {{user.role}}</h6>
+    <p class="d-inline-flex gap-1"><button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">Ver Perfil</button></p>
+  </div>
+    
+  
+  <div class="collapse" id="collapseExample">
+    <div class="card card-body">
+      <h4>Datos del Usuario: </h4>
+      <p><b>Nombre y Apellido:</b> {{user.last_name}}, {{user.first_name}}</p>
+      <p><b>Edad:</b> {{user.age}}</p>
+      <p><b>Email:</b> {{user.email}}</p>
+      <p><b>Rol:</b> {{user.role}}</p>
+    </div>
+  </div>
+</div>
+<h1 class="text-center p-2 text-bg-info">Listado de Productos</h1>
+<div class="container">
+  <div>
+  </div>
+  <div class="row">
+    {{#each products}}
+      <div class="col-md-4 p-2">
+        <div class="card border-1 mb-3">
+          <a href="/products/{{this._id}}" class="text-decoration-none">
+            <img
+              src="{{this.thumbnail}}"
+              class="card-img-top"
+              alt="{{this.title}}"
+            />
+          </a>
+          <div class="card-body text-center">
+            <p class="card-text text-dark">{{this.title}}</p>
+            <p class="card-text text-dark">Categoría: {{this.category}}</p>
+            <p><span class="text-danger">${{this.price}}</span></p>
+            <button
+              class="btn btn-dark"
+              onclick="agregarProductoAlCarrito('{{product._id}}')"
+            >Agregar al carrito</button>
+            <a href="/products/{{this._id}}"><button
+                class="btn btn-dark"
+              >Detalles</button></a>
+          </div>
+        </div>
+      </div>
+    {{/each}}
+  </div>
+  <div class="row my-5">
+    <div class="col">
+      <nav class="pagination justify-content-center">
+        {{#if hasPrevPage}}
+          <a href="?page=1&limit={{limit}}&sort={{sort}}&query={{query}}" class="btn btn-light btn-outline-dark">Primera</a>
+          <a href="?page={{prevPage}}&limit={{limit}}&sort={{sort}}&query={{query}}" class="btn btn-light btn-outline-dark"> <-- </a>
+        {{/if}}
+        {{#if hasNextPage}}
+          <a href="?page={{nextPage}}&limit={{limit}}&sort={{sort}}&query={{query}}" class="btn btn-light btn-outline-dark"> --> </a>
+          <a href="?page={{totalPages}}&limit={{limit}}&sort={{sort}}&query={{query}}" class="btn btn-light btn-outline-dark" >Última</a>
+        {{/if}}
+      </nav>
+    </div>
+  </div>
+</div>

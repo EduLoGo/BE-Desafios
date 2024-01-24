@@ -20,10 +20,24 @@ export class MongoManager {
       throw new Error(error.message);
     }
   }
+  async productPaginate(limit, page, sort, filter) {
+    try {
+      const dbData = await this.db.paginate(filter, {
+        lean: true,
+        limit: limit,
+        page: page,
+        sort: sort ? { price: sort === "asc" ? 1 : -1 } : null,
+      });
+      return dbData;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async productById(id) {
     this.validateId(id);
     try {
-      const productId = await this.db.find({ status: true, _id: id });
+      const productId = (await this.db.find({ status: true, _id: id }).lean());
       return productId;
     } catch (error) {
       throw new Error(error.message);
@@ -61,12 +75,20 @@ export class MongoManager {
       throw new Error(error.message);
     }
   }
+  async productsPaginate() {
+    const dbProducts = await this.db.paginate(
+      { description: "Gaseosa" },
+      { limit: 2, page: 1 }
+    );
+    console.log(dbProducts);
+  }
 
   // Manejo de Carts
 
   async createCart() {
     try {
-      await this.db.create({});
+      const newCart = await this.db.create({});
+      return newCart;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -74,7 +96,7 @@ export class MongoManager {
   async cartById(id) {
     this.validateId(id);
     try {
-      const cartId = this.db.findById(id);
+      const cartId = await this.db.findById(id).populate("products.product").lean();
       return cartId;
     } catch (error) {
       throw new Error(error.message);
@@ -90,8 +112,31 @@ export class MongoManager {
       throw new Error(error.message);
     }
   }
-  
-  /// Mensajes
+
+  async cartUpdateArray(id, cart) {
+    try {
+      const cartId = await this.db.findByIdAndUpdate(id, {products:cart}, {
+        new: true,
+      });
+      return cartId;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async cartDelete(id) {
+    this.validateId(id);
+    try {
+      const cartId = await this.db.findByIdAndDelete(id);
+      return cartId;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async cartDelProduct(idCart, idProduct) {}
+
+  /// Manejo de Mensajes
 
   async messageAll() {
     try {
@@ -104,6 +149,33 @@ export class MongoManager {
   async messageSave(message) {
     try {
       await this.db.create(message);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  // Manejo de Usuarios
+
+  async userSave(newUser){
+    try {
+      const newUserSave = await this.db.create(newUser);
+      return newUserSave;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+  async userExist(email, password) {
+    try {
+      const user = await this.db.findOne({email, password}).lean();
+      return user
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+  async userByEmail(email){
+    try {
+      const existEmail = await this.db.findOne({email}).lean();
+      return existEmail
     } catch (error) {
       throw new Error(error.message);
     }
